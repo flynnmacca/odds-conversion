@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Odds Converter",
+  "description": "Convert between implied probability and betting prices (decimal, fractional, American)",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Odds Converter"
+  }
+}

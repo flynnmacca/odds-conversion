@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Odds Converter</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <p class="eyebrow">Sports Odds Toolkit</p>
+      <h1>Odds Converter</h1>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <div class="card-head">
+          <h2>Probability to Price</h2>
+          <select id="prob-format" class="compact-select" aria-label="Probability input format">
+            <option value="percent">Percent</option>
+            <option value="decimal">Decimal</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <input type="number" id="prob-input" placeholder="Enter probability" min="0.01" max="99.99" step="0.01" />
+        </div>
+        <button id="prob-btn">Convert</button>
+        <div class="results" id="prob-results" hidden>
+          <div class="result-row"><span class="label">Decimal</span><span class="value" id="res-decimal"></span></div>
+          <div class="result-row"><span class="label">Fractional</span><span class="value" id="res-fractional"></span></div>
+          <div class="result-row"><span class="label">American</span><span class="value" id="res-american"></span></div>
+        </div>
+        <button id="prob-copy-btn" class="copy-btn hidden">Copy</button>
+        <p class="error" id="prob-error" hidden></p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Price to Probability</h2>
+        </div>
+        <p class="hint">Enter decimal, fractional, or American odds.</p>
+        <div class="input-row">
+          <input type="text" id="price-input" placeholder="Enter odds" />
+        </div>
+        <button id="price-btn">Convert</button>
+        <div class="results" id="price-results" hidden>
+          <div class="result-row"><span class="label">Implied Probability</span><span class="value" id="res-prob"></span></div>
+        </div>
+        <button id="price-copy-btn" class="copy-btn hidden">Copy</button>
+        <p class="error" id="price-error" hidden></p>
+      </section>
+
+      <section class="card card-wide">
+        <div class="card-head">
+          <div class="title-controls">
+            <h2 id="market-title">On-Site Price to 100%</h2>
+            <button id="market-flip-btn" class="compact-icon-btn" type="button" aria-label="Flip conversion direction">&#8646;</button>
+          </div>
+          <div class="head-controls">
+            <select id="market-range-preset" class="compact-select" aria-label="Range width preset">
+              <option value="tight">Tight</option>
+              <option value="medium" selected>Medium</option>
+              <option value="wide">Wide</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" id="market-hint">Enter on-site pricing.</p>
+        <div class="input-row">
+          <input type="text" id="market-input" placeholder="Enter odds" />
+        </div>
+        <button id="market-btn">Remove Margin</button>
+        <div class="results" id="market-summary" hidden>
+          <div class="result-row"><span class="label" id="market-prob-label">100% Probability Range</span><span class="value" id="res-fair-prob"></span></div>
+          <div class="result-row"><span class="label" id="market-price-label">100% Price Range</span><span class="value" id="res-fair-price"></span></div>
+        </div>
+        <button id="market-copy-btn" class="copy-btn hidden">Copy</button>
+        <p class="error" id="market-error" hidden></p>
+      </section>
+
+      <section class="card card-wide">
+        <div class="card-head">
+          <h2>Odds Display Converter</h2>
+        </div>
+        <p class="hint">Enter decimal, fractional, or American odds.</p>
+        <div class="input-row">
+          <input type="text" id="display-input" placeholder="Enter odds" />
+        </div>
+        <button id="display-btn">Convert</button>
+        <div class="results" id="display-results" hidden>
+          <div class="result-row"><span class="label">Decimal</span><span class="value" id="res-display-decimal"></span></div>
+          <div class="result-row"><span class="label">Fractional</span><span class="value" id="res-display-fractional"></span></div>
+          <div class="result-row"><span class="label">American</span><span class="value" id="res-display-american"></span></div>
+        </div>
+        <button id="display-copy-btn" class="copy-btn hidden">Copy</button>
+        <p class="error" id="display-error" hidden></p>
+      </section>
+    </main>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

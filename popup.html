@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Odds Converter</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Odds Converter</h1>
+    <section class="card">
+      <h2>Probability to Price</h2>
+      <div class="input-row">
+        <input type="number" id="prob-input" placeholder="Probability % (e.g. 33.33)" min="0.01" max="99.99" step="0.01" />
+      </div>
+      <button id="prob-btn">Convert</button>
+      <div class="results" id="prob-results" hidden>
+        <div class="result-row"><span class="label">Decimal</span><span class="value" id="res-decimal"></span></div>
+        <div class="result-row"><span class="label">Fractional</span><span class="value" id="res-fractional"></span></div>
+        <div class="result-row"><span class="label">American</span><span class="value" id="res-american"></span></div>
+      </div>
+      <p class="error" id="prob-error" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2>Price to Probability</h2>
+      <div class="input-row">
+        <select id="price-format">
+          <option value="decimal">Decimal</option>
+          <option value="fractional">Fractional</option>
+          <option value="american">American</option>
+        </select>
+      </div>
+      <div class="input-row" id="price-input-wrap">
+        <input type="number" id="price-decimal" placeholder="Decimal (e.g. 3.00)" step="0.01" />
+      </div>
+      <div class="input-row hidden" id="price-frac-wrap">
+        <input type="number" id="price-frac-num" placeholder="Numerator" step="1" class="frac" />
+        <span class="unit">/</span>
+        <input type="number" id="price-frac-den" placeholder="Denominator" step="1" class="frac" />
+      </div>
+      <div class="input-row hidden" id="price-amer-wrap">
+        <input type="number" id="price-american" placeholder="American (e.g. +200 or -150)" step="1" />
+      </div>
+      <button id="price-btn">Convert</button>
+      <div class="results" id="price-results" hidden>
+        <div class="result-row"><span class="label">Implied Probability</span><span class="value" id="res-prob"></span></div>
+      </div>
+      <p class="error" id="price-error" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2>On-Site Market to 100%</h2>
+      <p class="hint">Enter decimal prices separated by commas (e.g. 2.20, 3.40, 4.10).</p>
+      <div class="input-row">
+        <input type="text" id="market-input" placeholder="Decimal prices" />
+      </div>
+      <button id="market-btn">Calculate 100% Market</button>
+      <div class="results" id="market-summary" hidden>
+        <div class="result-row"><span class="label">Book %</span><span class="value" id="res-book-percent"></span></div>
+      </div>
+      <div class="results market-results" id="market-results" hidden></div>
+      <p class="error" id="market-error" hidden></p>
+    </section>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
