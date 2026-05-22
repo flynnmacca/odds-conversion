@@ -39,9 +39,8 @@
         <div class="card-head">
           <h2>Price to Probability</h2>
         </div>
-        <p class="hint">Enter decimal, fractional, or American odds.</p>
         <div class="input-row">
-          <input type="text" id="price-input" placeholder="Enter odds" />
+          <input type="text" id="price-input" placeholder="Enter decimal, fractional, or American odds." />
         </div>
         <button id="price-btn">Convert</button>
         <div class="results" id="price-results" hidden>
@@ -57,22 +56,14 @@
             <h2 id="market-title">On-Site Price to 100%</h2>
             <button id="market-flip-btn" class="compact-icon-btn" type="button" aria-label="Flip conversion direction">&#8646;</button>
           </div>
-          <div class="head-controls">
-            <select id="market-range-preset" class="compact-select" aria-label="Range width preset">
-              <option value="tight">Tight</option>
-              <option value="medium" selected>Medium</option>
-              <option value="wide">Wide</option>
-            </select>
-          </div>
         </div>
-        <p class="hint" id="market-hint">Enter on-site pricing.</p>
         <div class="input-row">
-          <input type="text" id="market-input" placeholder="Enter odds" />
+          <input type="text" id="market-input" placeholder="Enter decimal, fractional, or American odds." />
         </div>
         <button id="market-btn">Remove Margin</button>
         <div class="results" id="market-summary" hidden>
-          <div class="result-row"><span class="label" id="market-prob-label">100% Probability Range</span><span class="value" id="res-fair-prob"></span></div>
-          <div class="result-row"><span class="label" id="market-price-label">100% Price Range</span><span class="value" id="res-fair-price"></span></div>
+          <div class="result-row"><span class="label" id="market-prob-label">100% Probability</span><span class="value" id="res-fair-prob"></span></div>
+          <div class="result-row"><span class="label" id="market-price-label">100% Price</span><span class="value" id="res-fair-price"></span></div>
         </div>
         <button id="market-copy-btn" class="copy-btn hidden">Copy</button>
         <p class="error" id="market-error" hidden></p>
@@ -82,9 +73,8 @@
         <div class="card-head">
           <h2>Odds Display Converter</h2>
         </div>
-        <p class="hint">Enter decimal, fractional, or American odds.</p>
         <div class="input-row">
-          <input type="text" id="display-input" placeholder="Enter odds" />
+          <input type="text" id="display-input" placeholder="Enter decimal, fractional, or American odds." />
         </div>
         <button id="display-btn">Convert</button>
         <div class="results" id="display-results" hidden>

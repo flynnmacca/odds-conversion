@@ -73,69 +73,6 @@ function americanToDecimal(american) {
   }
 }
 
-/**
- * Calculate fair probability/price from a supplied effective power.
- * @param {number} onsitePrice
- * @param {number} effectivePower
- * @returns {{onsiteProb:number, fairProb:number, fairPrice:number}}
- */
-function fairFromEffectivePower(onsitePrice, effectivePower) {
-  const onsiteProb = decimalToProb(onsitePrice);
-  const onsiteProbDecimal = onsiteProb / 100;
-  const fairProbDecimal = Math.pow(onsiteProbDecimal, effectivePower);
-  const fairProb = fairProbDecimal * 100;
-  const fairPrice = probToDecimal(fairProb);
-  return { onsiteProb, fairProb, fairPrice };
-}
-
-/**
- * Calculate on-site probability/price from a supplied fair price and power.
- * @param {number} fairPrice
- * @param {number} effectivePower
- * @returns {{fairProb:number, onsiteProb:number, onsitePrice:number}}
- */
-function onsiteFromFairWithPower(fairPrice, effectivePower) {
-  const fairProb = decimalToProb(fairPrice);
-  const fairProbDecimal = fairProb / 100;
-  const onsiteProbDecimal = Math.pow(fairProbDecimal, 1 / effectivePower);
-  const onsiteProb = onsiteProbDecimal * 100;
-  const onsitePrice = probToDecimal(onsiteProb);
-  return { fairProb, onsiteProb, onsitePrice };
-}
-
-function interpolatePowerFromOdds(odds, points) {
-  if (odds <= points[0].odds) {
-    return points[0].power;
-  }
-
-  for (let i = 1; i < points.length; i += 1) {
-    const left = points[i - 1];
-    const right = points[i];
-    if (odds <= right.odds) {
-      const t = (odds - left.odds) / (right.odds - left.odds);
-      return left.power + t * (right.power - left.power);
-    }
-  }
-
-  return points[points.length - 1].power;
-}
-
-/**
- * Remove margin from a single on-site price using a power parameter.
- * @param {number} onsitePrice
- * @param {number} powerParam
- * @param {number} favoriteBoost
- * @returns {{onsiteProb:number, fairProb:number, fairPrice:number, effectivePower:number}}
- */
-function removeMarginFromSinglePrice(onsitePrice, powerParam) {
-  const effectivePower = Math.max(1.001, interpolatePowerFromOdds(onsitePrice, POWER_PROFILE_POINTS));
-  const fair = fairFromEffectivePower(onsitePrice, effectivePower);
-  const onsiteProb = fair.onsiteProb;
-  const fairProb = fair.fairProb;
-  const fairPrice = fair.fairPrice;
-  return { onsiteProb, fairProb, fairPrice, effectivePower };
-}
-
 /** Greatest common divisor (Euclidean). */
 function gcd(a, b) {
   return b === 0 ? a : gcd(b, a % b);
@@ -376,58 +313,137 @@ displayInput.addEventListener("keydown", (e) => {
 // ── On-site Market → 100% Fair Prices / Probabilities ───────────────────────
 
 const marketInput      = document.getElementById("market-input");
-const marketRangePreset = document.getElementById("market-range-preset");
 const marketBtn        = document.getElementById("market-btn");
 const marketFlipBtn    = document.getElementById("market-flip-btn");
 const marketCopyBtn    = document.getElementById("market-copy-btn");
 const marketSummary    = document.getElementById("market-summary");
 const marketError      = document.getElementById("market-error");
 const marketTitle      = document.getElementById("market-title");
-const marketHint       = document.getElementById("market-hint");
 const marketProbLabel  = document.getElementById("market-prob-label");
 const marketPriceLabel = document.getElementById("market-price-label");
 const resFairProb      = document.getElementById("res-fair-prob");
 const resFairPrice     = document.getElementById("res-fair-price");
-const POWER_PARAMETER = 1.105;
-const RANGE_PRESETS = {
-  tight: { base: 0.008, extra: 0.01, shift: -0.015 },
-  medium: { base: 0.016, extra: 0.022, shift: 0 },
-  wide: { base: 0.028, extra: 0.036, shift: 0.01 },
-};
-const POWER_PROFILE_POINTS = [
-  { odds: 1.01, power: 1.18 },
-  { odds: 1.53, power: 1.131 },
-  { odds: 1.9, power: 1.091 },
-  { odds: 2.48, power: 1.059 },
-  { odds: 4.0, power: 1.078 },
-  { odds: 8.0, power: 1.095 },
-  { odds: 12.0, power: 1.105 },
+const MARGIN_FIT_POINTS = [
+  { onsite: 1.02, fair: 1.054 },
+  { onsite: 1.03, fair: 1.075 },
+  { onsite: 1.26, fair: 1.31 },
+  { onsite: 1.41, fair: 1.502 },
+  { onsite: 1.48, fair: 1.55 },
+  { onsite: 1.5, fair: 1.618 },
+  { onsite: 1.73, fair: 1.844 },
+  { onsite: 2.04, fair: 2.184 },
+  { onsite: 2.46, fair: 2.619 },
+  { onsite: 2.54, fair: 2.792 },
+  { onsite: 2.78, fair: 2.992 },
+  { onsite: 2.94, fair: 3.19 },
+  { onsite: 4.5, fair: 5.0 },
+  { onsite: 9.8, fair: 14.327 },
+  { onsite: 15.0, fair: 20.3 },
 ];
+const HIGH_ODDS_THRESHOLD = 20;
+const HIGH_ODDS_LINEAR_BOOST = 0.22;
+const HIGH_ODDS_QUADRATIC_BOOST = 0.18;
 
 let lastMarketCopyText = "";
 let marketMode = "onsiteToFair";
 
-function getRangePreset() {
-  const selected = marketRangePreset.value;
-  return RANGE_PRESETS[selected] || RANGE_PRESETS.medium;
+function buildPiecewisePowerSegments(points) {
+  const sorted = [...points]
+    .filter((p) => p.onsite > 0 && p.fair > 0)
+    .sort((a, b) => a.onsite - b.onsite);
+
+  const segments = [];
+  for (let i = 1; i < sorted.length; i += 1) {
+    const left = sorted[i - 1];
+    const right = sorted[i];
+    const b = Math.log(right.fair / left.fair) / Math.log(right.onsite / left.onsite);
+    const a = left.fair / Math.pow(left.onsite, b);
+    segments.push({
+      onsiteMin: left.onsite,
+      onsiteMax: right.onsite,
+      fairMin: left.fair,
+      fairMax: right.fair,
+      a,
+      b,
+    });
+  }
+
+  return segments;
+}
+
+const POWER_SEGMENTS = buildPiecewisePowerSegments(MARGIN_FIT_POINTS);
+
+function getSegmentForOnsite(onsitePrice) {
+  if (onsitePrice <= POWER_SEGMENTS[0].onsiteMax) {
+    return POWER_SEGMENTS[0];
+  }
+  for (let i = 1; i < POWER_SEGMENTS.length; i += 1) {
+    if (onsitePrice <= POWER_SEGMENTS[i].onsiteMax) {
+      return POWER_SEGMENTS[i];
+    }
+  }
+  return POWER_SEGMENTS[POWER_SEGMENTS.length - 1];
+}
+
+function getSegmentForFair(fairPrice) {
+  if (fairPrice <= POWER_SEGMENTS[0].fairMax) {
+    return POWER_SEGMENTS[0];
+  }
+  for (let i = 1; i < POWER_SEGMENTS.length; i += 1) {
+    if (fairPrice <= POWER_SEGMENTS[i].fairMax) {
+      return POWER_SEGMENTS[i];
+    }
+  }
+  return POWER_SEGMENTS[POWER_SEGMENTS.length - 1];
+}
+
+function onsiteToFairFromCurve(onsitePrice) {
+  const segment = getSegmentForOnsite(onsitePrice);
+  const baseFair = segment.a * Math.pow(onsitePrice, segment.b);
+
+  if (onsitePrice <= HIGH_ODDS_THRESHOLD) {
+    return baseFair;
+  }
+
+  const x = (onsitePrice - HIGH_ODDS_THRESHOLD) / HIGH_ODDS_THRESHOLD;
+  const boost = 1 + HIGH_ODDS_LINEAR_BOOST * x + HIGH_ODDS_QUADRATIC_BOOST * x * x;
+  return baseFair * boost;
+}
+
+function fairToOnsiteFromCurve(fairPrice) {
+  if (fairPrice <= 0) {
+    return fairPrice;
+  }
+
+  let low = 1.001;
+  let high = Math.max(HIGH_ODDS_THRESHOLD, fairPrice * 1.2);
+
+  while (onsiteToFairFromCurve(high) < fairPrice && high < 100000) {
+    high *= 1.6;
+  }
+
+  for (let i = 0; i < 70; i += 1) {
+    const mid = (low + high) / 2;
+    if (onsiteToFairFromCurve(mid) < fairPrice) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  return (low + high) / 2;
 }
 
 function refreshMarketModeUI() {
   const reverseMode = marketMode === "fairToOnsite";
   marketTitle.textContent = reverseMode ? "100% Price to On-Site" : "On-Site Price to 100%";
-  marketHint.textContent = reverseMode ? "Enter 100% pricing." : "Enter on-site pricing.";
   marketBtn.textContent = reverseMode ? "Add Margin" : "Remove Margin";
-  marketProbLabel.textContent = reverseMode ? "On-Site Probability Range" : "100% Probability Range";
-  marketPriceLabel.textContent = reverseMode ? "On-Site Price Range" : "100% Price Range";
+  marketProbLabel.textContent = reverseMode ? "On-Site Probability" : "100% Probability";
+  marketPriceLabel.textContent = reverseMode ? "On-Site Price" : "100% Price";
   marketSummary.hidden = true;
   marketCopyBtn.classList.add("hidden");
   clearError(marketError);
 }
-
-marketRangePreset.addEventListener("change", () => {
-  marketSummary.hidden = true;
-  marketCopyBtn.classList.add("hidden");
-});
 
 marketFlipBtn.addEventListener("click", () => {
   marketMode = marketMode === "onsiteToFair" ? "fairToOnsite" : "onsiteToFair";
@@ -447,53 +463,25 @@ marketBtn.addEventListener("click", () => {
     return;
   }
 
-  const preset = getRangePreset();
-
   if (marketMode === "onsiteToFair") {
-    const onsitePrice = inputPrice;
-    const fair = removeMarginFromSinglePrice(onsitePrice, POWER_PARAMETER);
-    const shortOddsRangeFactor = Math.max(0, Math.min(1, (2 - onsitePrice) / (2 - 1.01)));
-    const rangeDelta = preset.base + shortOddsRangeFactor * preset.extra;
-    const centerShift = preset.shift;
-    const lowPower = Math.max(1.001, fair.effectivePower + centerShift - rangeDelta);
-    const highPower = fair.effectivePower + centerShift + rangeDelta;
-    const fairLow = fairFromEffectivePower(onsitePrice, lowPower);
-    const fairHigh = fairFromEffectivePower(onsitePrice, highPower);
-    const probMin = Math.min(fairLow.fairProb, fairHigh.fairProb);
-    const probMax = Math.max(fairLow.fairProb, fairHigh.fairProb);
-    const priceMin = Math.min(fairLow.fairPrice, fairHigh.fairPrice);
-    const priceMax = Math.max(fairLow.fairPrice, fairHigh.fairPrice);
-
-    resFairProb.textContent = `${formatProbability(probMin)} to ${formatProbability(probMax)}`;
-    resFairPrice.textContent = `${priceMin.toFixed(2)} to ${priceMax.toFixed(2)}`;
+    const approxPrice = onsiteToFairFromCurve(inputPrice);
+    const approxProb = decimalToProb(approxPrice);
+    resFairProb.textContent = `~${formatProbability(approxProb)}`;
+    resFairPrice.textContent = `~${approxPrice.toFixed(2)}`;
     lastMarketCopyText = resultRowsToText("On-Site Price to 100%", [
       { label: "Input", value: inputLabel },
-      { label: "100% Probability Range", value: resFairProb.textContent },
-      { label: "100% Price Range", value: resFairPrice.textContent },
+      { label: "100% Probability", value: resFairProb.textContent },
+      { label: "100% Price", value: resFairPrice.textContent },
     ]);
   } else {
-    const fairPrice = inputPrice;
-    const initialPower = Math.max(1.001, interpolatePowerFromOdds(fairPrice, POWER_PROFILE_POINTS));
-    const onsiteEstimate = onsiteFromFairWithPower(fairPrice, initialPower).onsitePrice;
-    const effectivePower = Math.max(1.001, interpolatePowerFromOdds(onsiteEstimate, POWER_PROFILE_POINTS));
-    const shortOddsRangeFactor = Math.max(0, Math.min(1, (2 - onsiteEstimate) / (2 - 1.01)));
-    const rangeDelta = preset.base + shortOddsRangeFactor * preset.extra;
-    const centerShift = preset.shift;
-    const lowPower = Math.max(1.001, effectivePower + centerShift - rangeDelta);
-    const highPower = effectivePower + centerShift + rangeDelta;
-    const onsiteLow = onsiteFromFairWithPower(fairPrice, lowPower);
-    const onsiteHigh = onsiteFromFairWithPower(fairPrice, highPower);
-    const probMin = Math.min(onsiteLow.onsiteProb, onsiteHigh.onsiteProb);
-    const probMax = Math.max(onsiteLow.onsiteProb, onsiteHigh.onsiteProb);
-    const priceMin = Math.min(onsiteLow.onsitePrice, onsiteHigh.onsitePrice);
-    const priceMax = Math.max(onsiteLow.onsitePrice, onsiteHigh.onsitePrice);
-
-    resFairProb.textContent = `${formatProbability(probMin)} to ${formatProbability(probMax)}`;
-    resFairPrice.textContent = `${priceMin.toFixed(2)} to ${priceMax.toFixed(2)}`;
+    const approxPrice = fairToOnsiteFromCurve(inputPrice);
+    const approxProb = decimalToProb(approxPrice);
+    resFairProb.textContent = `~${formatProbability(approxProb)}`;
+    resFairPrice.textContent = `~${approxPrice.toFixed(2)}`;
     lastMarketCopyText = resultRowsToText("100% Price to On-Site", [
       { label: "Input", value: inputLabel },
-      { label: "On-Site Probability Range", value: resFairProb.textContent },
-      { label: "On-Site Price Range", value: resFairPrice.textContent },
+      { label: "On-Site Probability", value: resFairProb.textContent },
+      { label: "On-Site Price", value: resFairPrice.textContent },
     ]);
   }
 
