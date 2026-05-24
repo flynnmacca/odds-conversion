@@ -453,7 +453,7 @@ function fairToOnsiteFromCurve(fairPrice) {
 
 function refreshMarketModeUI() {
   const reverseMode = marketMode === "fairToOnsite";
-  marketTitle.textContent = reverseMode ? "100% Price to On-Site" : "On-Site Price to 100%";
+  marketTitle.textContent = reverseMode ? "100% Price to On-Site (Pricing)" : "On-Site Price to 100% (Pricing)";
   marketBtn.textContent = reverseMode ? "Add Margin" : "Remove Margin";
   marketProbLabel.textContent = reverseMode ? "On-Site Probability" : "100% Probability";
   marketPriceLabel.textContent = reverseMode ? "On-Site Price" : "100% Price";
