@@ -107,6 +107,23 @@ async function copyText(text, errorEl) {
   }
 }
 
+// ── Tool selector ────────────────────────────────────────────────────────────
+
+const toolSelector = document.getElementById("tool-selector");
+const toolPanels = Array.from(document.querySelectorAll(".tool-panel"));
+
+function setActiveTool(toolName) {
+  toolPanels.forEach((panel) => {
+    panel.classList.toggle("hidden", panel.dataset.tool !== toolName);
+  });
+}
+
+toolSelector.addEventListener("change", () => {
+  setActiveTool(toolSelector.value);
+});
+
+setActiveTool(toolSelector.value || "prob");
+
 // ── Probability → Price ───────────────────────────────────────────────────────
 
 const probInput    = document.getElementById("prob-input");

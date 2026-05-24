@@ -40,6 +40,31 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
+.tool-switcher {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 360px;
+}
+
+.tool-switcher label {
+  font-size: 0.84rem;
+  color: #c8d9ef;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tool-switcher select {
+  background: #10213d;
+  border: 1px solid #4d6f9f;
+  border-radius: 6px;
+  color: #f3f8ff;
+  font-size: 0.92rem;
+  padding: 8px 10px;
+}
+
 .eyebrow {
   font-size: 0.76rem;
   text-transform: uppercase;
@@ -327,5 +352,9 @@ button#display-btn:hover {
 
   h1 {
     font-size: 1.6rem;
+  }
+
+  .tool-switcher {
+    max-width: 100%;
   }
 }

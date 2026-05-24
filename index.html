@@ -11,10 +11,19 @@
     <header class="hero">
       <p class="eyebrow">Sports Odds Toolkit</p>
       <h1>Odds Converter</h1>
+      <div class="tool-switcher">
+        <label for="tool-selector">Tool</label>
+        <select id="tool-selector" aria-label="Select tool">
+          <option value="prob">Probability to Price</option>
+          <option value="price">Price to Probability</option>
+          <option value="market">On-Site Price to 100%</option>
+          <option value="display">Odds Display Converter</option>
+        </select>
+      </div>
     </header>
 
     <main class="grid">
-      <section class="card">
+      <section class="card tool-panel" id="tool-prob" data-tool="prob">
         <div class="card-head">
           <h2>Probability to Price</h2>
           <select id="prob-format" class="compact-select" aria-label="Probability input format">
@@ -35,7 +44,7 @@
         <p class="error" id="prob-error" hidden></p>
       </section>
 
-      <section class="card">
+      <section class="card tool-panel" id="tool-price" data-tool="price">
         <div class="card-head">
           <h2>Price to Probability</h2>
         </div>
@@ -50,7 +59,7 @@
         <p class="error" id="price-error" hidden></p>
       </section>
 
-      <section class="card card-wide">
+      <section class="card card-wide tool-panel" id="tool-market" data-tool="market">
         <div class="card-head">
           <div class="title-controls">
             <h2 id="market-title">On-Site Price to 100%</h2>
@@ -69,7 +78,7 @@
         <p class="error" id="market-error" hidden></p>
       </section>
 
-      <section class="card card-wide">
+      <section class="card card-wide tool-panel" id="tool-display" data-tool="display">
         <div class="card-head">
           <h2>Odds Display Converter</h2>
         </div>
