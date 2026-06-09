@@ -107,6 +107,48 @@ async function copyText(text, errorEl) {
   }
 }
 
+// ── Access gate (basic client-side lock) ───────────────────────────────────
+
+const ACCESS_PASSWORD = "sports123";
+const appRoot = document.getElementById("app-root");
+const authGate = document.getElementById("auth-gate");
+const accessPasswordInput = document.getElementById("access-password");
+const unlockBtn = document.getElementById("unlock-btn");
+const unlockError = document.getElementById("unlock-error");
+
+function unlockApp() {
+  authGate.classList.add("hidden");
+  appRoot.classList.remove("hidden");
+  unlockError.hidden = true;
+  unlockError.textContent = "";
+}
+
+function lockApp() {
+  authGate.classList.remove("hidden");
+  appRoot.classList.add("hidden");
+}
+
+function tryUnlock() {
+  const entered = accessPasswordInput.value;
+  if (entered === ACCESS_PASSWORD) {
+    unlockApp();
+    accessPasswordInput.value = "";
+    return;
+  }
+
+  unlockError.textContent = "Incorrect password.";
+  unlockError.hidden = false;
+}
+
+lockApp();
+
+unlockBtn.addEventListener("click", tryUnlock);
+accessPasswordInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    tryUnlock();
+  }
+});
+
 // ── Tool selector ────────────────────────────────────────────────────────────
 
 const toolSelector = document.getElementById("tool-selector");
@@ -341,25 +383,95 @@ const marketPriceLabel = document.getElementById("market-price-label");
 const resFairProb      = document.getElementById("res-fair-prob");
 const resFairPrice     = document.getElementById("res-fair-price");
 const MARGIN_FIT_POINTS = [
-  { onsite: 1.02, fair: 1.054 },
-  { onsite: 1.03, fair: 1.075 },
-  { onsite: 1.26, fair: 1.31 },
-  { onsite: 1.41, fair: 1.502 },
-  { onsite: 1.48, fair: 1.55 },
-  { onsite: 1.5, fair: 1.618 },
-  { onsite: 1.73, fair: 1.844 },
-  { onsite: 2.04, fair: 2.184 },
-  { onsite: 2.46, fair: 2.619 },
-  { onsite: 2.54, fair: 2.792 },
-  { onsite: 2.78, fair: 2.992 },
-  { onsite: 2.94, fair: 3.19 },
-  { onsite: 4.5, fair: 5.0 },
-  { onsite: 9.8, fair: 14.327 },
-  { onsite: 15.0, fair: 20.3 },
+  { onsite: 1.002, fair: 1.02 },
+  { onsite: 1.005, fair: 1.03 },
+  { onsite: 1.01, fair: 1.03 },
+  { onsite: 1.02, fair: 1.04 },
+  { onsite: 1.03, fair: 1.06 },
+  { onsite: 1.04, fair: 1.07 },
+  { onsite: 1.05, fair: 1.08 },
+  { onsite: 1.06, fair: 1.09 },
+  { onsite: 1.07, fair: 1.11 },
+  { onsite: 1.08, fair: 1.13 },
+  { onsite: 1.1, fair: 1.15 },
+  { onsite: 1.13, fair: 1.18 },
+  { onsite: 1.14, fair: 1.2 },
+  { onsite: 1.17, fair: 1.23 },
+  { onsite: 1.2, fair: 1.27 },
+  { onsite: 1.22, fair: 1.29 },
+  { onsite: 1.25, fair: 1.31 },
+  { onsite: 1.29, fair: 1.35 },
+  { onsite: 1.3, fair: 1.38 },
+  { onsite: 1.33, fair: 1.41 },
+  { onsite: 1.36, fair: 1.45 },
+  { onsite: 1.4, fair: 1.49 },
+  { onsite: 1.44, fair: 1.54 },
+  { onsite: 1.5, fair: 1.61 },
+  { onsite: 1.53, fair: 1.64 },
+  { onsite: 1.57, fair: 1.68 },
+  { onsite: 1.62, fair: 1.73 },
+  { onsite: 1.66, fair: 1.79 },
+  { onsite: 1.73, fair: 1.87 },
+  { onsite: 1.8, fair: 1.96 },
+  { onsite: 1.83, fair: 2.0 },
+  { onsite: 1.91, fair: 2.04 },
+  { onsite: 2.0, fair: 2.15 },
+  { onsite: 2.1, fair: 2.27 },
+  { onsite: 2.2, fair: 2.37 },
+  { onsite: 2.25, fair: 2.47 },
+  { onsite: 2.38, fair: 2.56 },
+  { onsite: 2.5, fair: 2.64 },
+  { onsite: 2.63, fair: 2.85 },
+  { onsite: 2.75, fair: 3.04 },
+  { onsite: 2.88, fair: 3.22 },
+  { onsite: 3.0, fair: 3.44 },
+  { onsite: 3.25, fair: 3.63 },
+  { onsite: 3.4, fair: 3.86 },
+  { onsite: 3.5, fair: 4.23 },
+  { onsite: 3.75, fair: 4.45 },
+  { onsite: 4.0, fair: 4.7 },
+  { onsite: 4.5, fair: 5.35 },
+  { onsite: 5.0, fair: 6.0 },
+  { onsite: 5.5, fair: 6.56 },
+  { onsite: 6.0, fair: 7.67 },
+  { onsite: 6.5, fair: 8.69 },
+  { onsite: 7.0, fair: 10.09 },
+  { onsite: 7.5, fair: 12.11 },
+  { onsite: 8.0, fair: 13.5 },
+  { onsite: 9.0, fair: 15.29 },
+  { onsite: 10.0, fair: 17.67 },
+  { onsite: 11.0, fair: 26.0 },
+  { onsite: 15.0, fair: 34.33 },
+  { onsite: 19.0, fair: 41.0 },
+  { onsite: 34.0, fair: 51.0 },
+
+  { onsite: 50, fair: 80 },
+  { onsite: 55, fair: 90 },
+  { onsite: 60, fair: 100 },
+  { onsite: 66, fair: 110 },
+  { onsite: 70, fair: 115 },
+  { onsite: 90, fair: 145 },
+  { onsite: 100, fair: 190 },
+  { onsite: 125, fair: 260 },
+  { onsite: 150, fair: 330 },
+  { onsite: 175, fair: 440 },
+  { onsite: 200, fair: 510 },
+  { onsite: 225, fair: 575 },
+  { onsite: 250, fair: 630 },
+  { onsite: 275, fair: 700 },
+  { onsite: 300, fair: 760 },
+  { onsite: 325, fair: 800 },
+  { onsite: 375, fair: 850 },
+  { onsite: 400, fair: 990 },
+  { onsite: 425, fair: 1000 },
+  { onsite: 475, fair: 1100 },
+  { onsite: 500, fair: 1200 },
+  { onsite: 750, fair: 1800 },
+  { onsite: 1000, fair: 2400 },
+  { onsite: 2000, fair: 7500 },
+  { onsite: 5000, fair: 20000 },
+  { onsite: 10000, fair: 75000 },
 ];
-const HIGH_ODDS_THRESHOLD = 20;
-const HIGH_ODDS_LINEAR_BOOST = 0.22;
-const HIGH_ODDS_QUADRATIC_BOOST = 0.18;
 
 let lastMarketCopyText = "";
 let marketMode = "onsiteToFair";
@@ -416,15 +528,7 @@ function getSegmentForFair(fairPrice) {
 
 function onsiteToFairFromCurve(onsitePrice) {
   const segment = getSegmentForOnsite(onsitePrice);
-  const baseFair = segment.a * Math.pow(onsitePrice, segment.b);
-
-  if (onsitePrice <= HIGH_ODDS_THRESHOLD) {
-    return baseFair;
-  }
-
-  const x = (onsitePrice - HIGH_ODDS_THRESHOLD) / HIGH_ODDS_THRESHOLD;
-  const boost = 1 + HIGH_ODDS_LINEAR_BOOST * x + HIGH_ODDS_QUADRATIC_BOOST * x * x;
-  return baseFair * boost;
+  return segment.a * Math.pow(onsitePrice, segment.b);
 }
 
 function fairToOnsiteFromCurve(fairPrice) {

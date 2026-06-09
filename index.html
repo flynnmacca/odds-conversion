@@ -7,7 +7,19 @@
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <div class="container">
+  <section id="auth-gate" class="auth-gate">
+    <div class="auth-card">
+      <h2>Protected Access</h2>
+      <p>Enter password to open the tools.</p>
+      <div class="input-row">
+        <input type="password" id="access-password" placeholder="Enter password" />
+      </div>
+      <button id="unlock-btn" type="button">Unlock</button>
+      <p class="error" id="unlock-error" hidden></p>
+    </div>
+  </section>
+
+  <div class="container hidden" id="app-root">
     <header class="hero">
       <p class="eyebrow">Sports Odds Toolkit</p>
       <h1>Odds Converter</h1>
