@@ -122,20 +122,25 @@ const unlockBtn = document.getElementById("unlock-btn");
 const unlockError = document.getElementById("unlock-error");
 
 function unlockApp() {
+  authGate.hidden = true;
   authGate.classList.add("hidden");
   authGate.style.display = "none";
 
+  appRoot.hidden = false;
   appRoot.classList.remove("hidden");
-  appRoot.style.display = "block";
-
-  setActiveTool(toolSelector.value || "prob");
+  appRoot.style.display = "";
 
   unlockError.hidden = true;
   unlockError.textContent = "";
 }
 
 function lockApp() {
-  authGate.style.display = "block";
+  authGate.hidden = false;
+  authGate.classList.remove("hidden");
+  authGate.style.display = "";
+
+  appRoot.hidden = true;
+  appRoot.classList.add("hidden");
   appRoot.style.display = "none";
 }
 
