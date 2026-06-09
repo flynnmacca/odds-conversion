@@ -112,6 +112,7 @@ async function copyText(text, errorEl) {
 // ── Access gate (basic client-side lock) ───────────────────────────────────
 
 const ACCESS_PASSWORD = "sports123";
+
 const appRoot = document.getElementById("app-root");
 const authGate = document.getElementById("auth-gate");
 const accessPasswordInput = document.getElementById("access-password");
@@ -119,38 +120,37 @@ const unlockBtn = document.getElementById("unlock-btn");
 const unlockError = document.getElementById("unlock-error");
 
 function unlockApp() {
-  authGate.classList.add("hidden");
-  appRoot.classList.remove("hidden");
+  authGate.style.display = "none";
+  appRoot.style.display = "block";
   unlockError.hidden = true;
   unlockError.textContent = "";
 }
 
 function lockApp() {
-  authGate.classList.remove("hidden");
-  appRoot.classList.add("hidden");
+  authGate.style.display = "block";
+  appRoot.style.display = "none";
 }
 
-function tryUnlock() {
-  const entered = accessPasswordInput.value;
+function tryUnlock(e) {
+  if (e) e.preventDefault();
+
+  const entered = accessPasswordInput.value.trim();
+
   if (entered === ACCESS_PASSWORD) {
     unlockApp();
-    accessPasswordInput.value = "";
-    return;
+  } else {
+    unlockError.textContent = "Incorrect password.";
+    unlockError.hidden = false;
   }
-
-  unlockError.textContent = "Incorrect password.";
-  unlockError.hidden = false;
 }
 
 lockApp();
 
 unlockBtn.addEventListener("click", tryUnlock);
-accessPasswordInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    tryUnlock();
-  }
-});
 
+accessPasswordInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") tryUnlock(e);
+});
 // ── Tool selector ────────────────────────────────────────────────────────────
 
 const toolSelector = document.getElementById("tool-selector");
