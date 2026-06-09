@@ -1,3 +1,5 @@
+alert("JS loaded");
+
 document.addEventListener("DOMContentLoaded", () => {
 
 // ── Conversion helpers ────────────────────────────────────────────────────────
