@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 // ── Conversion helpers ────────────────────────────────────────────────────────
 
 /**
@@ -537,7 +539,7 @@ function fairToOnsiteFromCurve(fairPrice) {
   }
 
   let low = 1.001;
-  let high = Math.max(HIGH_ODDS_THRESHOLD, fairPrice * 1.2);
+  let high = Math.max(10000, fairPrice * 1.2);
 
   while (onsiteToFairFromCurve(high) < fairPrice && high < 100000) {
     high *= 1.6;
@@ -619,4 +621,6 @@ marketCopyBtn.addEventListener("click", () => {
 
 marketInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") marketBtn.click();
+});
+
 });
