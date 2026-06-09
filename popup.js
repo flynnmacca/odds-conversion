@@ -122,8 +122,14 @@ const unlockBtn = document.getElementById("unlock-btn");
 const unlockError = document.getElementById("unlock-error");
 
 function unlockApp() {
+  authGate.classList.add("hidden");
   authGate.style.display = "none";
+
+  appRoot.classList.remove("hidden");
   appRoot.style.display = "block";
+
+  setActiveTool(toolSelector.value || "prob");
+
   unlockError.hidden = true;
   unlockError.textContent = "";
 }
